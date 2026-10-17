@@ -99,32 +99,41 @@ This project implements a secure, highly available, and scalable web application
 
 * **High Availability & Fault Tolerance:** Spreading resources across multiple Availability Zones (**AZ A, AZ-B, AZ-C**) ensures continuous uptime even if one zone fails.
 
-  Is project ke execution ke baad aapko kya **Expected Output** (ya Result) milega, uske points niche diye gaye hain. Yeh points aap apne GitHub repository ke `README.md` me bhi add kar sakte hain:
+ Here are the **Expected Output & Verification Points** in English, ready to be added to your GitHub repository documentation (`README.md`):
 
 ---
 
 # 🎯 Expected Output & Verification Points
 
 * **1. Successful Public Access to the Application:**
-* Jab user ALB ke DNS name ya domain par request bhejega, toh application bina kisi error ke load hogi, kyunki Internet Gateway aur ALB saare incoming traffic ko correctly accept kar rahe hain.
+* When a user sends a request to the ALB's DNS name or domain, the application loads smoothly without errors, as the Internet Gateway and ALB correctly accept and handle all incoming traffic.
+
+
 
 
 * **2. Dynamic Path-Based Routing (URL Split Behavior):**
-* **Student Portal:** Agar user URL me `/student/` access karega (`http://<alb-dns>/student/...`), toh response sirf **Student EC2 Instance** se aayega.
-* **Teacher Portal:** Agar user `/teacher/` access karega, toh response sirf **Teacher EC2 Instance** se aayega.
-* **College Portal:** Agar user `/college/` access karega, toh response sirf **College EC2 Instance** se aayega.
+* **Student Portal:** Accessing `/student/` in the URL (`http://<alb-dns>/student/...`) routes the request exclusively to the **Student EC2 Instance** via the `TG-Student` target group.
+
+
+* **Teacher Portal:** Accessing `/teacher/` routes the request exclusively to the **Teacher EC2 Instance** via the `TG-Teacher` target group.
+
+
+* **College Portal:** Accessing `/college/` routes the request exclusively to the **College EC2 Instance** via the `TG-College` target group.
+
+
 
 
 * **3. Secure Private Instances (No Direct Public IP):**
-* Backend ke teeno EC2 instances (Student, Teacher, College) ke paas public IP address nahi hoga. Yeh internet se directly access nahi ho sakenge, jisse security puri tarah maintain rahegi.
+* All three backend EC2 instances (Student, Teacher, and College) operate within **Private Subnets** without public IP addresses, preventing any direct access from the public internet and maintaining strict infrastructure security.
+
+
 
 
 * **4. Successful Outbound Internet via NAT Gateway:**
-* Jab private instances par login karke aap koi software update ya `apt-get update` / `yum update` run karenge, toh woh packets **NAT Gateway** ke through successfully internet par jayenge aur updates download ho jayenge.
+* When private instances require software updates, security patches, or external API calls, outgoing packets are successfully routed through the **NAT Gateway** and out via the **Internet Gateway**.
 
 
-* **5. High Availability Across Zones:**
-* Agar koi ek Availability Zone (jaise AZ-A) down bhi ho jata hai, tab bhi baaki zones (AZ-B aur AZ-C) ke instances apna kaam karte rahenge aur system me downtime nahi aayega.
 
 
-* **Controlled Access:** Centralized traffic entry via the ALB minimizes the attack surface and protects backend EC2 instances.
+* **5. High Availability Across Availability Zones:**
+* By distributing workloads across multiple Availability Zones (**Availability Zone A, B, and C**), the architecture ensures high availability and fault tolerance, meaning failure in one zone will not bring down the entire application.
