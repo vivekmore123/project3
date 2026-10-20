@@ -1,139 +1,72 @@
+AWS ALB Path-Based Routing with Private EC2 Instances and NAT Gateway
 
+📌 Project Overview
 
+This project demonstrates how to deploy three separate web applications on AWS using an Application Load Balancer (ALB), path-based routing, private EC2 instances, and a NAT Gateway.
 
-# 🚀 Project Overview: AWS Infrastructure (ALB Path-Based Routing & NAT Gateway)
+The infrastructure is deployed in the AWS Mumbai Region ("ap-south-1") using one VPC, 2 Public Subnets, 3 Private Subnets, and 3 Availability Zones.
 
-## 📌 1. Introduction
+The ALB routes incoming HTTP requests to the appropriate application based on the URL path. Each application runs on a separate private EC2 instance with Nginx. A NAT Gateway provides outbound internet connectivity to private instances without exposing them directly to the internet.
 
-This project implements a secure, highly available, and scalable web application architecture deployed within the **AWS Cloud (Mumbai Region: `ap-south-1`)**. The primary goal is to intelligently manage incoming web traffic using path-based routing while safeguarding backend servers (EC2 instances) from direct exposure to the public internet.
+🏗️ Architecture Diagram
+<img width="1000" height="558" alt="shared_image" src="https://github.com/user-attachments/assets/313b70c0-09e8-4802-b72c-bbbc02be3fdd" />
 
----
 
-## 🏗️ 2. Architectural Components & Design
 
+"AWS ALB Path-Based Routing Architecture" (aws-architecture.png)
 
-<img width="1408" height="768" alt="image_8317480b" src="https://github.com/user-attachments/assets/8a519c92-2c13-4dbb-aed5-6b0ba02e53ab" />
+Architecture Components
 
+- Amazon VPC: Provides an isolated network for the infrastructure.
+- 2 Public Subnets: Host the internet-facing ALB across two Availability Zones; one also hosts the NAT Gateway.
+- 3 Private Subnets: Host the Student, Teacher, and College EC2 instances separately.
+- 3 Availability Zones: Distribute the private application instances across "ap-south-1a", "ap-south-1b", and "ap-south-1c".
+- Internet Gateway (IGW): Enables internet connectivity for public-facing resources.
+- Application Load Balancer (ALB): Receives HTTP requests on port 80 and forwards them according to URL paths.
+- 3 Target Groups: Route requests to the corresponding EC2 instances.
+- NAT Gateway: Provides outbound internet access to private instances.
+- Security Groups and Route Tables: Control network access and traffic routing.
 
-* **Internet Gateway (IGW):**
-* Acts as the bridge between your VPC and the public internet.
+🔀 Path-Based Routing
 
+URL Path| Target Group| EC2 Instance| Application
+"/student/*"| TG-Student| student-server| Student Portal
+"/teacher/*"| TG-Teacher| teacher-server| Teacher Portal
+"/college/*"| TG-College| college-server| College Portal
 
-* Handles all incoming user requests (**Inbound Traffic**) and application responses (**Outbound Internet Traffic**).
+🌐 Application Pages
 
+- Student: Welcome to Student Portal
+- Teacher: Welcome to Teacher Portal
+- College: Welcome to College Portal
 
+All three applications are accessed using the same ALB DNS name with different URL paths.
 
+🔐 Security Configuration
 
-* **Application Load Balancer (ALB):**
-* Deployed in a **Public Subnet** to serve as the single entry point for all incoming user traffic.
+- Private EC2 instances do not have public IP addresses.
+- The ALB security group allows HTTP traffic on port 80.
+- EC2 security groups allow HTTP traffic only from the ALB security group.
+- Public route tables direct internet traffic through the Internet Gateway.
+- Private route tables use the NAT Gateway for outbound internet access.
 
+🛠️ AWS Services Used
 
-* Utilizes **Path-Based Routing** rules to inspect incoming URL paths and forward requests to corresponding Target Groups.
+Amazon EC2 | Amazon VPC | Application Load Balancer | Target Groups | NAT Gateway | Internet Gateway | Route Tables | Security Groups | Nginx | Linux
 
+🎯 Learning Outcomes
 
+- Configuring public and private subnets.
+- Implementing ALB path-based routing.
+- Creating and configuring target groups.
+- Deploying Nginx websites on private EC2 instances.
+- Configuring NAT Gateway and route tables.
+- Understanding AWS network security.
 
+✅ Project Result
 
-* **Path-Based Routing Rules:**
-* **Rule 1 (`/student/*`):** Routes traffic destined for the student portal to the **TG-Student** target group and its respective backend instance.
+Successfully configured a single Application Load Balancer to route requests to three separate web applications hosted on private EC2 instances. The design separates public access from private application servers and provides outbound connectivity through a NAT Gateway.
 
+👨‍💻 Project Type
 
-* **Rule 2 (`/teacher/*`):** Routes traffic destined for the teacher portal to the **TG-Teacher** target group.
-
-
-* **Rule 3 (`/college/*`):** Routes traffic destined for the college portal to the **TG-College** target group.
-
-
-
-
-* **Private Subnets & Backend EC2 Instances:**
-* To maximize security, all backend compute workloads are isolated within **Private Subnets** across multiple Availability Zones (**AZ A, B, and C**), preventing direct public access:
-
-
-* **Student Instance:** Hosted in Availability Zone A.
-
-
-* **Teacher Instance:** Hosted in Availability Zone B.
-
-
-* **College Instance:** Hosted in Availability Zone C.
-
-
-
-
-
-
-* **NAT Gateway:**
-* Since private instances do not have inbound public IP addresses, they require a **NAT Gateway** to safely initiate outbound connections to the internet.
-
-
-* Enables private instances to download software patches, updates, or query external APIs without exposing them to inbound threats.
-
-
-
-
-
----
-
-## 🔄 3. Complete Traffic Flow Lifecycle
-
-1. **User Request:** A user initiates an HTTP/HTTPS request from the internet.
-2. **Entry Point:** The request passes through the **Internet Gateway (IGW)** and hits the **Application Load Balancer (ALB)**.
-
-
-3. **Routing Decision:** The ALB evaluates the URL path (`/student/`, `/teacher/`, or `/college/`) against configured rules.
-
-
-4. **Backend Processing:** The request is forwarded via the appropriate Target Group to the matching **Private EC2 Instance** in its respective Availability Zone.
-
-
-5. **Outbound Communication:** If a private instance needs to communicate with the outside world, the traffic flows securely through the **NAT Gateway** and out via the **Internet Gateway**.
-
-
-
----
-
-## 🛡️ 4. Security & Best Practices
-
-* **Network Isolation:** Core application logic and data layers remain fully hidden behind private subnets.
-
-
-* **High Availability & Fault Tolerance:** Spreading resources across multiple Availability Zones (**AZ A, AZ-B, AZ-C**) ensures continuous uptime even if one zone fails.
-
- Here are the **Expected Output & Verification Points** in English, ready to be added to your GitHub repository documentation (`README.md`):
-
----
-
-# 🎯 Expected Output & Verification Points
-
-* **1. Successful Public Access to the Application:**
-* When a user sends a request to the ALB's DNS name or domain, the application loads smoothly without errors, as the Internet Gateway and ALB correctly accept and handle all incoming traffic.
-
-
-
-
-* **2. Dynamic Path-Based Routing (URL Split Behavior):**
-* **Student Portal:** Accessing `/student/` in the URL (`http://<alb-dns>/student/...`) routes the request exclusively to the **Student EC2 Instance** via the `TG-Student` target group.
-
-
-* **Teacher Portal:** Accessing `/teacher/` routes the request exclusively to the **Teacher EC2 Instance** via the `TG-Teacher` target group.
-
-
-* **College Portal:** Accessing `/college/` routes the request exclusively to the **College EC2 Instance** via the `TG-College` target group.
-
-
-
-
-* **3. Secure Private Instances (No Direct Public IP):**
-* All three backend EC2 instances (Student, Teacher, and College) operate within **Private Subnets** without public IP addresses, preventing any direct access from the public internet and maintaining strict infrastructure security.
-
-
-
-
-* **4. Successful Outbound Internet via NAT Gateway:**
-* When private instances require software updates, security patches, or external API calls, outgoing packets are successfully routed through the **NAT Gateway** and out via the **Internet Gateway**.
-
-
-
-
-* **5. High Availability Across Availability Zones:**
-* By distributing workloads across multiple Availability Zones (**Availability Zone A, B, and C**), the architecture ensures high availability and fault tolerance, meaning failure in one zone will not bring down the entire application.
+Hands-on AWS Cloud Networking and Load Balancing Project.
